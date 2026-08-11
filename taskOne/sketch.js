@@ -8,6 +8,7 @@ const PROXY_URL = "https://seneye-proxy.ezankov.workers.dev/";
 // Toggle to true if you are working offline without network access
 const USE_OFFLINE_MOCK = false;
 
+
 let aquariumData = null;
 let lastUpdated = "";
 
@@ -56,20 +57,33 @@ function draw() {
   if (aquariumData) {
     // NOTE: Update these keys based on your actual Seneye JSON response structure!
     // Example fields commonly found in sensor data:
-    let temp = aquariumData.temperature || 24.5;
-    let ph = aquariumData.ph || 7.2;
-    let nh3 = aquariumData.nh3 || 0.01;
+    let temp = aquariumData[0].exps.temperature.curr;
+    let ph = aquariumData[0].exps.ph.curr;
+    let nh3 = aquariumData[0].exps.nh3.curr;
+    let nh4 = aquariumData[0].exps.nh4.curr;
 
     // Call your custom graphic widgets
     drawTempWidget(50, 120, temp);
     drawGaugeWidget(300, 120, "pH Level", ph, 6.0, 8.5);
     drawGaugeWidget(550, 120, "Ammonia (NH3)", nh3, 0.0, 0.05);
+    drawGaugeWidget(550, 320, "Ammonium (NH4)", nh4, 0.0, 0.05);
 
   } else {
     // Loading State
     fill(255, 100, 100);
     textSize(18);
     text("Connecting to sensor stream...", 30, 120);
+  }
+// checks if ph is too low or high
+  if (aquariumData[0].exps.ph.curr <= 6) {
+    textSize(12);
+    fill(255, 0, 0);
+    text("Warning pH too low", 300, 90);
+
+  } else if (aquariumData[0].exps.ph.curr >= 9) {
+    textSize(12);
+    fill(255, 0, 0);
+    text("Warning pH too high", 300, 90);
   }
 }
 
@@ -93,7 +107,7 @@ function drawTempWidget(x, y, tempVal) {
 }
 
 // Example Widget Function: Simple Bar Gauge
-function drawGaugeWidget(x, y, label, val, minVal, maxVal) {
+function drawGaugeWidget(x, y, label, val,  minVal, maxVal) {
   fill(35, 48, 68);
   stroke(60, 80, 110);
   rect(x, y, 200, 150, 10);
