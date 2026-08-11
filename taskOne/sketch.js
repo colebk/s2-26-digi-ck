@@ -19,7 +19,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(800, 500);
+  createCanvas(960, 540);
   
   // Refresh live data every 5 minutes (300,000 ms)
   if (!USE_OFFLINE_MOCK) {
@@ -57,16 +57,16 @@ function draw() {
   if (aquariumData) {
     // NOTE: Update these keys based on your actual Seneye JSON response structure!
     // Example fields commonly found in sensor data:
-    let temp = aquariumData[0].exps.temperature.curr;
+    let temp = Math.round(aquariumData[0].exps.temperature.curr*100)/100;
     let ph = aquariumData[0].exps.ph.curr;
     let nh3 = aquariumData[0].exps.nh3.curr;
-    let nh4 = aquariumData[0].exps.nh4.curr;
+    let o2 = aquariumData[0].exps.o2.curr;
 
     // Call your custom graphic widgets
-    drawTempWidget(50, 120, temp);
-    drawGaugeWidget(300, 120, "pH Level", ph, 6.0, 8.5);
-    drawGaugeWidget(550, 120, "Ammonia (NH3)", nh3, 0.0, 0.05);
-    drawGaugeWidget(550, 320, "Ammonium (NH4)", nh4, 0.0, 0.05);
+    drawTempWidget(30, 120, temp);
+    drawGaugeWidget(260, 120, "pH Level", ph, 6.0, 8.5);
+    drawGaugeWidget(490, 120, "Ammonia (NH3)", nh3, 0.0, 0.05);
+    drawGaugeWidget(720, 120, "Oxygen (o2)", nh4, 0.0, 0.05);
 
   } else {
     // Loading State
@@ -92,7 +92,7 @@ function drawTempWidget(x, y, tempVal) {
   // Background Card
   fill(35, 48, 68);
   stroke(60, 80, 110);
-  rect(x, y, 200, 150, 10);
+  rect(x, y, 170, 150, 10);
 
   // Label
   noStroke();
