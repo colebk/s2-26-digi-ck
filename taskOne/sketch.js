@@ -66,7 +66,7 @@ function draw() {
     drawTempWidget(30, 120, temp);
     drawGaugeWidget(260, 120, "pH Level", ph, 6.0, 8.5);
     drawGaugeWidget(490, 120, "Ammonia (NH3)", nh3, 0.0, 0.05);
-    drawGaugeWidget(720, 120, "Oxygen (o2)", nh4, 0.0, 0.05);
+    drawGaugeWidget(720, 120, "Oxygen Level", o2, 0.0, 0.05);
 
   } else {
     // Loading State
