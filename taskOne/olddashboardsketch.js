@@ -17,7 +17,7 @@ function preload() {
   // Load initial data before setup() runs
   let endpoint = USE_OFFLINE_MOCK ? "sample-data.json" : PROXY_URL;
   aquariumData = loadJSON(endpoint, onDataLoaded, onError);
-    
+  // sucxk = loadImage('tenor.gif');
 }
 
 function setup() {
@@ -43,7 +43,7 @@ function onError(err) {
 
 function draw() {
   background(20, 30, 45); // Dark blue aquarium background
-  image(sucxk, 50, 50, 400, 400);
+  // Image(sucxk, 50, 50, 200, 200);
 
   // 1. Draw Title Header
   fill(255);
