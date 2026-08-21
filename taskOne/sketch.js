@@ -12,22 +12,38 @@ const gifImage = document.createElement("img");
 let aquariumData = null;
 let lastUpdated = "";
 let sucxk;
+let chezyy;
+let videoLoaded = false; // Flag to check if video is ready
+let bubbles = [];
+const NUM_BUBBLES = 50;
 
 function preload() {
-  // Load initial data before setup() runs
   let endpoint = USE_OFFLINE_MOCK ? "sample-data.json" : PROXY_URL;
   aquariumData = loadJSON(endpoint, onDataLoaded, onError);
-    
+  sucxk = loadImage('tenor.gif');
 }
 
 function setup() {
   createCanvas(960, 540);
   
-  // Refresh live data every 5 minutes (300,000 ms)
-  if (!USE_OFFLINE_MOCK) {
-    setInterval(() => {
-      loadJSON(PROXY_URL, onDataLoaded, onError);
-    }, 300000);
+  // Initialize video and assign the callback function
+  chezyy = createVideo(['chez.mp4'], videoReady);
+  chezyy.hide();
+  chezyy.volume(0);
+  chezyy.loop()
+}
+
+// Trigger playback only after the video file is fully loaded
+function videoReady() {
+  videoLoaded = true;
+  chezyy.volume(0);
+  chezyy.loop(); 
+}
+
+// Start video audio/playback on user click if browser blocks autoplay
+function mousePressed() {
+  if (chezyy) {
+    chezyy.loop();
   }
 }
 
@@ -42,9 +58,13 @@ function onError(err) {
 }
 
 function draw() {
-  background(20, 30, 45); // Dark blue aquarium background
-  image(sucxk, 50, 50, 400, 400);
-
+  background(20, 30, 45);
+  
+  // Only draw the video frame once it has loaded
+  if (videoLoaded) {
+    image(chezyy, 0, 0, width, height);
+    image(sucxk, 50, 50, 400, 400);
+  }
   // 1. Draw Title Header
   fill(255);
   textSize(24);
