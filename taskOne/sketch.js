@@ -7,13 +7,10 @@ const PROXY_URL = "https://seneye-proxy.ezankov.workers.dev/";
 
 // Toggle to true if you are working offline without network access
 const USE_OFFLINE_MOCK = false;
-const gifImage = document.createElement("img");
 
 let aquariumData = null;
 let lastUpdated = "";
 let sucxk;
-let chezyy;
-let videoLoaded = false; // Flag to check if video is ready
 let bubbles = [];
 const NUM_BUBBLES = 50;
 
@@ -25,25 +22,8 @@ function preload() {
 
 function setup() {
   createCanvas(960, 540);
-  
-  // Initialize video and assign the callback function
-  chezyy = createVideo(['chez.mp4'], videoReady);
-  chezyy.hide();
-  chezyy.volume(0);
-  chezyy.loop()
-}
-
-// Trigger playback only after the video file is fully loaded
-function videoReady() {
-  videoLoaded = true;
-  chezyy.volume(0);
-  chezyy.loop(); 
-}
-
-// Start video audio/playback on user click if browser blocks autoplay
-function mousePressed() {
-  if (chezyy) {
-    chezyy.loop();
+  for (let i = 0; i < NUM_BUBBLES; i++) {
+    bubbles.push(new Bubble()); 
   }
 }
 
@@ -59,12 +39,15 @@ function onError(err) {
 
 function draw() {
   background(20, 30, 45);
-  
-  // Only draw the video frame once it has loaded
-  if (videoLoaded) {
-    image(chezyy, 0, 0, width, height);
-    image(sucxk, 50, 50, 400, 400);
+
+  // Display each bubble
+  for (let bubble of bubbles) {
+    bubble.move();
+    bubble.display();
+    bubble.resetIfOffscreen();
   }
+
+  image(sucxk, 50, 50, 400, 400);
   // 1. Draw Title Header
   fill(255);
   textSize(24);
@@ -76,11 +59,9 @@ function draw() {
   fill(150, 200, 255);
   text("Last updated: " + (lastUpdated || "Loading..."), 30, 65);
 
-  // 2. Render Dashboard Graphics
-  if (aquariumData) {
-    // NOTE: Update these keys based on your actual Seneye JSON response structure!
-    // Example fields commonly found in sensor data:
-    let temp = Math.round(aquariumData[0].exps.temperature.curr*100)/100;
+  // 2. Render Dashboard Graphics safely after checking aquariumData exists
+  if (aquariumData && aquariumData[0]) {
+    let temp = Math.round(aquariumData[0].exps.temperature.curr * 100) / 100;
     let ph = aquariumData[0].exps.ph.curr;
     let nh3 = aquariumData[0].exps.nh3.curr;
     let o2 = aquariumData[0].exps.o2.curr;
@@ -91,46 +72,81 @@ function draw() {
     drawGaugeWidget(490, 120, "Ammonia (NH3)", nh3, 0.0, 0.05);
     drawGaugeWidget(720, 120, "Oxygen Level", o2, 0.0, 0.05);
 
+    // Checks if pH is too low or high inside the data check block
+    if (ph <= 6) {
+      textSize(12);
+      fill(255, 0, 0);
+      text("Warning pH too low", 300, 90);
+    } else if (ph >= 9) {
+      textSize(12);
+      fill(255, 0, 0);
+      text("Warning pH too high", 300, 90);
+    }
+
   } else {
     // Loading State
     fill(255, 100, 100);
     textSize(18);
     text("Connecting to sensor stream...", 30, 120);
   }
-// checks if ph is too low or high
-  if (aquariumData[0].exps.ph.curr <= 6) {
-    textSize(12);
-    fill(255, 0, 0);
-    text("Warning pH too low", 300, 90);
+} //NOTE THIS IS WHERE THE DRAWING ENDS DUMDNAS <<<------------------------------------------------------------------------------------------------------
 
-  } else if (aquariumData[0].exps.ph.curr >= 9) {
-    textSize(12);
-    fill(255, 0, 0);
-    text("Warning pH too high", 300, 90);
+
+// Bubble Class )
+class Bubble {
+  constructor() {
+    this.reset(true);
+  }
+
+  reset(firstTime = false) {
+    this.x = random(width);
+    this.y = firstTime ? random(height) : height + random(10, 50);
+    this.radius = random(5, 20);
+    this.speed = random(1, 3);
+    this.alpha = random(100, 200);
+  }
+
+  move() {
+    this.y -= this.speed;
+    this.x += sin(frameCount * 0.05 + this.radius) * 0.5;
+  }
+
+  display() {
+    noFill();
+    stroke(255, 255, 255, this.alpha);
+    strokeWeight(1.5);
+    circle(this.x, this.y, this.radius * 2);
+    
+    fill(255, 255, 255, this.alpha);
+    noStroke();
+    circle(this.x - this.radius * 0.3, this.y - this.radius * 0.3, this.radius * 0.3);
+  }
+
+  resetIfOffscreen() {
+    if (this.y < -this.radius * 2) {
+      this.reset();
+    }
   }
 }
 
 // Example Widget Function: Temperature Card
 function drawTempWidget(x, y, tempVal) {
-  // Background Card
   fill(35, 48, 68);
   stroke(60, 80, 110);
   rect(x, y, 170, 150, 10);
 
-  // Label
   noStroke();
   fill(180, 200, 220);
   textSize(14);
   text("Water Temp", x + 15, y + 15);
 
-  // Value Display
   fill(100, 220, 255);
   textSize(36);
   text(tempVal + "°C", x + 15, y + 50);
 }
 
 // Example Widget Function: Simple Bar Gauge
-function drawGaugeWidget(x, y, label, val,  minVal, maxVal) {
+function drawGaugeWidget(x, y, label, val, minVal, maxVal) {
   fill(35, 48, 68);
   stroke(60, 80, 110);
   rect(x, y, 200, 150, 10);
