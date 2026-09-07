@@ -22,7 +22,7 @@ let tempHistory = [];
 const MAX_TEMP_HISTORY = 60;
 
 let lastDataFetch = 0;
-const DATA_FETCH_INTERVAL = 9 * 60 * 1000; //9 mins
+const DATA_FETCH_INTERVAL = 5 * 60 * 1000; //5 mins
 
 function preload() {
   let endpoint = USE_OFFLINE_MOCK ? "sample-data.json" : PROXY_URL;
