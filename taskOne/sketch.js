@@ -13,10 +13,16 @@ let lastUpdated = "";
 let sucxk;
 let bubbles = [];
 const NUM_BUBBLES = 50;
-// let aqyu
+
 let titlecol = [100, 220, 255];
-let widgetcommony = (100)
-let widgetcol = [9, 27, 52]
+let widgetcommony = 100;
+let widgetcol = [9, 27, 52];
+
+let tempHistory = [];
+const MAX_TEMP_HISTORY = 60;
+
+let lastDataFetch = 0;
+const DATA_FETCH_INTERVAL = 9 * 60 * 1000; //9 mins
 
 function preload() {
   let endpoint = USE_OFFLINE_MOCK ? "sample-data.json" : PROXY_URL;
@@ -35,14 +41,37 @@ function setup() {
 function onDataLoaded(data) {
   aquariumData = data;
   lastUpdated = new Date().toLocaleTimeString();
+
+  // Get the newest temperature
+  let temp = Math.round(
+    aquariumData[0].exps.temperature.curr * 100
+  ) / 100;
+
+  // Add it to the graph
+  tempHistory.push(temp);
+
+  // Keep only the most recent 60 readings
+  if (tempHistory.length > MAX_TEMP_HISTORY) {
+    tempHistory.shift();
+  }
+
   console.log("Data refreshed successfully:", data);
+  console.log("Temperature:", temp);
 }
+
+
 
 function onError(err) {
   console.error("Failed to load aquarium data. Check proxy URL or network.", err);
 }
 
 function draw() {
+    // Refresh Seneye data every 10 seconds
+  if (millis() - lastDataFetch >= DATA_FETCH_INTERVAL) {
+    refreshAquariumData();
+    lastDataFetch = millis();
+  }
+
   // background(aqyu);
   background(0, 0, 0)
 
@@ -53,8 +82,16 @@ function draw() {
     bubble.resetIfOffscreen();
   }
 
+  function refreshAquariumData() {
+  if (USE_OFFLINE_MOCK) {
+    return;
+  }
+
+  loadJSON(PROXY_URL, onDataLoaded, onError);
+}
+
   image(sucxk, 50, 50, 400, 400);
-  rect
+
   // 1. Draw Title Header
   fill(255);
   textSize(24);
@@ -91,10 +128,12 @@ function draw() {
     drawingContext.shadowColor = color(255, 197, 211);
     drawGaugeWidget(720, widgetcommony, "Oxygen Level", o2, 255, 197, 211, 3, 12, 5, 10, "ppm");
     drawingContext.shadowBlur = 0;
-    warningds(ph, 'pH', 280, 190, 9, 9)
-    warningds(temp, 'Temperature', 45, 190, 9, 9)
-    warningds(nh3, 'Ammonia', 510, 190, 9, 9)
-    warningds(o2, 'Oxygen', 735, 190, 9, 9)
+    warningds(ph, 'pH', 280, 190, 8.2, 6.5)
+    warningds(temp, 'Temperature', 45, 190, 28, 20)
+    warningds(nh3, 'Ammonia', 510, 190, 0.06, -1)
+    warningds(o2, 'Oxygen', 735, 190, 10, 5)
+
+    drawTemperatureGraph(30, 350, 900, 160);
 
 
 
@@ -116,6 +155,10 @@ function warningds(label, slabel, x, y, he, le){
       textSize(12);
       fill(255, 0, 0);
       text("Warning " + slabel + " too high", x, y);
+    } else{
+      textSize(12);
+      fill(0, 255, 0);
+      text(slabel + " is in a safe range", x, y);
     }
 }
 
@@ -457,4 +500,168 @@ function drawGaugeWidget(
   // Reset
   textAlign(LEFT, TOP);
   textStyle(NORMAL);
+}
+function drawTemperatureGraph(x, y, w, h) {
+
+  // -------------------------
+  // Graph background
+  // -------------------------
+  fill(widgetcol);
+  stroke(0, 255, 255);
+  strokeWeight(2);
+  rect(x, y, w, h, 10);
+
+  // -------------------------
+  // Title
+  // -------------------------
+  noStroke();
+  fill(...titlecol);
+  textSize(14);
+  textStyle(BOLD);
+  textAlign(LEFT, TOP);
+  text("Temperature History", x + 15, y + 12);
+
+  // -------------------------
+  // Graph area
+  // -------------------------
+  let graphX = x + 45;
+  let graphY = y + 35;
+  let graphW = w - 65;
+  let graphH = h - 60;
+
+  // -------------------------
+  // Grid lines
+  // -------------------------
+  stroke(50, 80, 100, 100);
+  strokeWeight(1);
+
+  // Horizontal grid lines
+  for (let i = 0; i <= 4; i++) {
+    let gy = map(i, 0, 4, graphY, graphY + graphH);
+    line(graphX, gy, graphX + graphW, gy);
+  }
+
+  // Vertical grid lines
+  for (let i = 0; i <= 5; i++) {
+    let gx = map(i, 0, 5, graphX, graphX + graphW);
+    line(gx, graphY, gx, graphY + graphH);
+  }
+
+  // -------------------------
+  // Y-axis labels
+  // -------------------------
+  noStroke();
+  fill(180, 180, 180);
+  textSize(9);
+  textAlign(RIGHT, CENTER);
+
+  text("35°C", graphX - 5, graphY);
+  text("30°C", graphX - 5, graphY + graphH * 0.25);
+  text("25°C", graphX - 5, graphY + graphH * 0.50);
+  text("20°C", graphX - 5, graphY + graphH * 0.75);
+  text("15°C", graphX - 5, graphY + graphH);
+
+  // -------------------------
+  // No data yet
+  // -------------------------
+  if (tempHistory.length === 0) {
+    fill(120, 150, 170);
+    textSize(12);
+    textAlign(CENTER, CENTER);
+    text(
+      "Waiting for temperature data...",
+      graphX + graphW / 2,
+      graphY + graphH / 2
+    );
+
+    textAlign(LEFT, TOP);
+    return;
+  }
+
+  // -------------------------
+  // Temperature line
+  // -------------------------
+  noFill();
+  stroke(0, 255, 255);
+  strokeWeight(3);
+
+  beginShape();
+
+  for (let i = 0; i < tempHistory.length; i++) {
+
+    let px = map(
+      i,
+      0,
+      MAX_TEMP_HISTORY - 1,
+      graphX,
+      graphX + graphW
+    );
+
+    let py = map(
+      tempHistory[i],
+      15,
+      35,
+      graphY + graphH,
+      graphY
+    );
+
+    py = constrain(py, graphY, graphY + graphH);
+
+    vertex(px, py);
+  }
+
+  endShape();
+
+  // -------------------------
+  // Data points
+  // -------------------------
+  fill(0, 255, 255);
+  noStroke();
+
+  for (let i = 0; i < tempHistory.length; i++) {
+
+    let px = map(
+      i,
+      0,
+      MAX_TEMP_HISTORY - 1,
+      graphX,
+      graphX + graphW
+    );
+
+    let py = map(
+      tempHistory[i],
+      15,
+      35,
+      graphY + graphH,
+      graphY
+    );
+
+    py = constrain(py, graphY, graphY + graphH);
+
+    circle(px, py, 5);
+  }
+
+  // -------------------------
+  // Current temperature
+  // -------------------------
+  let currentTemp = tempHistory[tempHistory.length - 1];
+
+  noStroke();
+  fill(0, 255, 255);
+  textSize(16);
+  textStyle(BOLD);
+  textAlign(RIGHT, TOP);
+
+  text(
+    currentTemp.toFixed(2) + "°C",
+    x + w - 15,
+    y + 10
+  );
+
+  // -------------------------
+  // Reset styles
+  // -------------------------
+  textAlign(LEFT, TOP);
+  textStyle(NORMAL);
+  strokeWeight(1);
 }
