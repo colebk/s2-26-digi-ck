@@ -12,6 +12,7 @@ let aquariumData = null;
 let lastUpdated = "";
 let sucxk;
 let bubbles = [];
+let aqyu
 const NUM_BUBBLES = 50;
 
 let titlecol = [100, 220, 255];
@@ -28,7 +29,7 @@ function preload() {
   let endpoint = USE_OFFLINE_MOCK ? "sample-data.json" : PROXY_URL;
   aquariumData = loadJSON(endpoint, onDataLoaded, onError);
   sucxk = loadImage('tenor.gif');
-  // aqyu = loadImage('shek.png');
+  aqyu = loadImage('shek.png');
 }
 
 function setup() {
@@ -73,7 +74,7 @@ function draw() {
   }
 
   // background(aqyu);
-  background(0, 0, 0)
+  background(aqyu)
 
   // Display each bubble
   for (let bubble of bubbles) {
@@ -90,13 +91,19 @@ function draw() {
   loadJSON(PROXY_URL, onDataLoaded, onError);
 }
 
-  image(sucxk, 50, 50, 400, 400);
+  image(sucxk, 30, 270, 890, 50);
 
   // 1. Draw Title Header
+
+  fill(widgetcol);
+  stroke(...titlecol);
+  strokeWeight(2);
+  rect(30, 20, 350, 60, 10);
+  noStroke();
   fill(255);
   textSize(24);
   textAlign(LEFT, TOP);
-  text("Fish Environment Dashboard", 30, 30);
+  text("Fish Environment Dashboard", 40, 30);
 
 
     // 1. Calculate the pulsing blur size (oscillates between 10 and 50)
@@ -106,7 +113,7 @@ function draw() {
   // Display connection status
   textSize(12);
   fill(150, 200, 255);
-  text("Last updated: " + (lastUpdated || "Loading..."), 30, 65);
+  text("Last updated: " + (lastUpdated || "Loading..."), 40, 60);
 
   // 2. Render Dashboard Graphics safely after checking aquariumData exists
   if (aquariumData && aquariumData[0]) {
@@ -128,9 +135,9 @@ function draw() {
     drawingContext.shadowColor = color(255, 197, 211);
     drawGaugeWidget(720, widgetcommony, "Oxygen Level", o2, 255, 197, 211, 3, 12, 5, 10, "ppm");
     drawingContext.shadowBlur = 0;
-    warningds(ph, 'pH', 280, 190, 8.2, 6.5)
+    warningds(ph, 'pH', 275, 190, 8.2, 6.5)
     warningds(temp, 'Temperature', 45, 190, 28, 20)
-    warningds(nh3, 'Ammonia', 510, 190, 0.06, -1)
+    warningds(nh3, 'Ammonia', 505, 190, 0.06, -1)
     warningds(o2, 'Oxygen', 735, 190, 10, 5)
 
     drawTemperatureGraph(30, 350, 900, 160);
@@ -510,11 +517,11 @@ function drawTemperatureGraph(x, y, w, h) {
   stroke(0, 255, 255);
   strokeWeight(2);
   rect(x, y, w, h, 10);
+  noStroke();
 
   // -------------------------
   // Title
   // -------------------------
-  noStroke();
   fill(...titlecol);
   textSize(14);
   textStyle(BOLD);
