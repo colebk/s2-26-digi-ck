@@ -85,24 +85,18 @@ function draw() {
     drawingContext.shadowColor = tempcol;
     drawTempWidget(30, widgetcommony, temp, 0, 0, 139, titlecol);
     drawingContext.shadowColor = color(0, 128, 0);
-    drawGaugeWidget(260, widgetcommony, "pH Level", ph, 0, 128, 0, 0, 14, 6, 8);
+    drawGaugeWidget(260, widgetcommony, "pH Level", ph, 0, 128, 0, 3, 10, 6.5, 8.2, " ");
     drawingContext.shadowColor = color(255, 244, 79);
-    drawGaugeWidget(490, widgetcommony, "Ammonia (NH3)", nh3, 255, 244, 79, 0, 1, -1, 0.05);
+    drawGaugeWidget(490, widgetcommony, "Ammonia (NH3)", nh3, 255, 244, 79, 0, 0.3, 0, 0.05, "ppm");
     drawingContext.shadowColor = color(255, 197, 211);
-    drawGaugeWidget(720, widgetcommony, "Oxygen Level", o2, 255, 197, 211, 2, 12);
+    drawGaugeWidget(720, widgetcommony, "Oxygen Level", o2, 255, 197, 211, 3, 12, 5, 10, "ppm");
     drawingContext.shadowBlur = 0;
+    warningds(ph, 'pH', 280, 190, 9, 9)
+    warningds(temp, 'Temperature', 45, 190, 9, 9)
+    warningds(nh3, 'Ammonia', 510, 190, 9, 9)
+    warningds(o2, 'Oxygen', 735, 190, 9, 9)
 
 
-    // Checks if pH is too low or high inside the data check block
-    if (ph <= 6) {
-      textSize(12);
-      fill(255, 0, 0);
-      text("Warning pH too low", 300, 90);
-    } else if (ph >= 9) {
-      textSize(12);
-      fill(255, 0, 0);
-      text("Warning pH too high", 300, 90);
-    }
 
   } else {
     // Loading State
@@ -112,6 +106,18 @@ function draw() {
   }
 } //NOTE THIS IS WHERE THE DRAWING ENDS DUMDNAS <<<------------------------------------------------------------------------------------------------------
 
+function warningds(label, slabel, x, y, he, le){
+  if (label <= le) {
+      textSize(12);
+      fill(255, 0, 0);
+      // text("Warning pH too low", 280, 190);
+      text("Warning " + slabel + " too low", x, y);
+    } else if (label >= he) {
+      textSize(12);
+      fill(255, 0, 0);
+      text("Warning " + slabel + " too high", x, y);
+    }
+}
 
 // Bubble Class )
 class Bubble {
@@ -178,7 +184,8 @@ function drawTempGauge(
   safeCol = [0, 255, 255],
   dangerCol = [255, 0, 0],
   markerCol = [255, 255, 255],
-  labelCol = [180, 180, 180]
+  labelCol = [180, 180, 180],
+  wordle = "°C"
 ) {
 
   // -------------------------
@@ -314,10 +321,10 @@ function drawTempGauge(
   textSize(10);
 
   textAlign(LEFT, TOP);
-  text(minTemp + "°C", gaugeX, gaugeY + 10);
+  text(minTemp + wordle, gaugeX, gaugeY + 10);
 
   textAlign(RIGHT, TOP);
-  text(maxTemp + "°C", gaugeX + gaugeWidth, gaugeY + 10);
+  text(maxTemp + wordle, gaugeX + gaugeWidth, gaugeY + 10);
 
   // Reset
   textAlign(LEFT, TOP);
@@ -393,7 +400,8 @@ function drawGaugeWidget(
   minb,
   maxb,
   dmin,
-  dmax
+  dmax,
+  wordle
 ) {
 
   // -------------------------
@@ -443,7 +451,7 @@ function drawGaugeWidget(
     [255, 0, 0],       // Danger colour
     [255, 255, 255],   // Marker colour
     [180, 180, 180],    // Label colour
-    ""
+    wordle
   );
 
   // Reset
