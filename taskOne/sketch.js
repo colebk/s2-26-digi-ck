@@ -90,9 +90,6 @@ function draw() {
 
   loadJSON(PROXY_URL, onDataLoaded, onError);
 }
-
-  image(sucxk, 30, 270, 890, 50);
-
   // 1. Draw Title Header
 
   fill(widgetcol);
@@ -140,7 +137,7 @@ function draw() {
     warningds(nh3, 'Ammonia', 505, 190, 0.06, -1)
     warningds(o2, 'Oxygen', 735, 190, 10, 5)
 
-    drawTemperatureGraph(30, 350, 900, 160);
+    drawTemperatureGraph(30, 300, 900, 160);
 
 
 
