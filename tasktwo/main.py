@@ -15,6 +15,8 @@ data = response.json()
 
 product_name = data.get("product", {}).get("product_name", "Product name not found")
 ingredients = data.get("product", {}).get("ingredients_text_en", "Product name not found")
+nutriscore = data.get("product", {}).get("nutriscore_grade")
+sugar = data.get("product", {}).get("nutrient", "Product name not found")
 
 
 #print(f"Product Name: {product_name}")
@@ -26,7 +28,7 @@ def cho_pro():
         print(f"Product Name: {product_name}")
         print(f"Ingredients: {ingredients}")
     elif choice == "2":
-        break
+        print('che')
     else:
         print("Invalid choice. Please try again.")
 
@@ -37,19 +39,21 @@ def print_menu():
    3. 
    final. Exit""")
    
-
+print("dofgin")
 
 def main():
-   while True:
-       print_menu()
-       choice = input("Enter your choice: ")
-       if choice == "1":
-           print(f"Product Name: {product_name}")
-           print(f"Ingredients: {ingredients}")
-       elif choice == "2":
-           break
-       else:
-           print("Invalid choice. Please try again.")
+    while True:
+        print_menu()
+        choice = input("Enter your choice: ")
+        if choice == "1":
+            print(f"Product Name: {product_name}")
+            print(f"Ingredients: {ingredients}")
+        elif choice == "2":
+            cho_pro()
+        elif choice == "final":
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
 
 if __name__ == "__main__":
