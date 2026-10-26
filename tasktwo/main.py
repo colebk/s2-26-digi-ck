@@ -8,16 +8,20 @@ def get_info(barcode):
     product_name = data.get("product", {}).get("product_name", "Product name not found")
     ingredients = data.get("product", {}).get("ingredients_text_en", "Product name not found")
     nutriscore = data.get("product", {}).get("nutriscore_grade")
-    sugar_100g = data.get("product", {}).get("nutriments", {}).get("sugars_100g", "N/A"),
-    sugar_serving = data.get("product", {}).get("nutriments", {}).get("sugars_serving", "N/A"),
+    repeatlist = ["sugars_100g", "sugars_serving", "proteins_100g",
+                "proteins_serving", "carbohydrates_100g",
+                "carbohydrates_serving", "energy-kj_100g", "energy_serving",
+                "fat_100g", "fat_serving", "sodium_100g", "sodium_serving" ]
+    product_info = {}
+    for x in repeatlist:
+        nutri_info = data.get("product", {}).get("nutriments", {}).get(x, "N/A")
+        product_info[x] = nutri_info
     status_check = data.get('status')
     
     product_info = {
         "name": product_name,
         "ingredients": ingredients,
         "nutrition_score": nutriscore,
-        "sugar_100g": sugar_100g,
-        "sugar_serving": sugar_serving,
         "status": status_check
         }
     return product_info
@@ -31,8 +35,7 @@ def print_menu():
    print("""
    1. View Product Information
    2. Enter your own barcode
-   3. 
-   final. Exit""")
+   3. Exit""")
    
 
 
@@ -68,7 +71,7 @@ def main():
                 print("Invalid Barcode. Please try again.")
 
 
-        elif choice == "final":
+        elif choice == "3":
             break
         else:
             print("Invalid choice. Please try again.")
