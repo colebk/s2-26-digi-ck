@@ -1,5 +1,6 @@
 from datetime import date
 import requests
+import os
 
 def get_info(barcode):
     url = f"https://world.openfoodfacts.net/api/v2/product/{barcode}"
@@ -33,11 +34,16 @@ def get_info(barcode):
 #print(f"Ingredients: {ingredients}")
 
 #A menu system
-def print_menu():
-   print("""
+def print_menu(name):
+   print(f"""
+--------------------------------
+   Current product: {name}
+--------------------------------
    1. View Product Information
    2. Enter your own barcode
-   3. Exit""")
+   3. Exit
+--------------------------------
+   """)
    
 
 
@@ -45,21 +51,28 @@ def main():
     default_barcode = 3017624010701
     product_info = get_info(default_barcode)
     while True:
-        print_menu()
+        name = product_info["name"]
+        print_menu(name)
         choice = input("Enter your choice: ")
         if choice == "1":
 
             print(f"""
+-----------------------------------------------------------------------------------------------------------
 Product Name: {product_info["name"]}
 Ingredients: {product_info["ingredients"]}
+
 Sugar per 100g: {product_info['nutrition_info']["sugars_100g"]}g
 Sugar per serving: {product_info['nutrition_info']["sugars_serving"]}g
+
 Carbohydrates per 100g: {product_info['nutrition_info']["carbohydrates_100g"]}g
 Carbohydrates per serving: {product_info['nutrition_info']["carbohydrates_serving"]}g
+
 Energy in kj per 100g: {product_info['nutrition_info']["energy-kj_100g"]}kj
 Energy in kj per serving: {product_info['nutrition_info']["energy_serving"]}kj
-fat per 100g: {product_info['nutrition_info']["fat_100g"]}g
-fat per serving: {product_info['nutrition_info']["fat_serving"]}g
+
+Fat per 100g: {product_info['nutrition_info']["fat_100g"]}g
+Fat per serving: {product_info['nutrition_info']["fat_serving"]}g
+
 Sodium per 100g: {product_info['nutrition_info']["sodium_100g"]}g
 sodium per serving: {product_info['nutrition_info']["sodium_serving"]}g""")
             
@@ -75,6 +88,7 @@ sodium per serving: {product_info['nutrition_info']["sodium_serving"]}g""")
                 print("Nutri-Score E: Consume in moderation")
             else:
                 print("something went wrong")
+            print("-----------------------------------------------------------------------------------------------------------")
         elif choice == "2":
             original_barcode = product_info["barcode"]
             barcode = input("Enter your own barcode ")
@@ -92,4 +106,5 @@ sodium per serving: {product_info['nutrition_info']["sodium_serving"]}g""")
 
 
 if __name__ == "__main__":
-   main()
+    print("\033[H\033[2J", end="")
+    main()
