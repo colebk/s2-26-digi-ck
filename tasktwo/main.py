@@ -2,9 +2,11 @@ from datetime import date
 import requests
 import os
 
+
 def get_info(barcode):
-    url = f"https://world.openfoodfacts.net/api/v2/product/{barcode}"
-    response = requests.get(url)
+    url = f"https://world.openfoodfacts.org/api/v2/product/{barcode}"
+    headers = {"User-Agent": "MyBarcodeApp - 1.0 - colebk@pedarecc.sa.edu.au"}
+    response = requests.get(url, headers=headers)
     data = response.json()
     product_name = data.get("product", {}).get("product_name", "Product name not found")
     ingredients = data.get("product", {}).get("ingredients_text_en", "Product name not found")
